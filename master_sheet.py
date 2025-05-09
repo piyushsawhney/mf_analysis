@@ -1,10 +1,15 @@
 from collections import OrderedDict
-from datetime import datetime
-
 from urllib import request
+
+import pandas as pd
 
 AMFI_URL = 'https://www.amfiindia.com/spages/NAVAll.txt'
 DOWNLOAD_FILE_PATH = 'resources/nav.txt'
+
+# Define column names
+# columns = ['amfi_scheme_code', 'scheme_name', 'isin_growth' 'scheme_category']
+df = pd.DataFrame()
+print(df)
 
 
 def download_nav_file(url):
@@ -19,8 +24,10 @@ def download_nav_file(url):
     open(DOWNLOAD_FILE_PATH, 'wb').write(response.read())
 
 
-def update_to_db():
+def update_to_db(row):
+    # print(row)
     pass
+
 
 def get_row(code, isin1, isin2, nav, nav_date, scheme_name, open_ended, scheme_category):
     my_row = OrderedDict()
@@ -34,6 +41,7 @@ def get_row(code, isin1, isin2, nav, nav_date, scheme_name, open_ended, scheme_c
     my_row['scheme_category'] = scheme_category
     return my_row
 
+
 if __name__ == '__main__':
     download_nav_file(AMFI_URL)
     with open(DOWNLOAD_FILE_PATH, 'r') as nav_file:
@@ -46,32 +54,45 @@ if __name__ == '__main__':
                 if 'open' not in scheme_values[0].lower():
                     open_ended = False
                 if "-" in scheme_values[1]:
-                    scheme_category = scheme_values[1].split("-")[1].strip()[:-1]
-                else:
-                    scheme_category = scheme_values[1].strip()[:-1]
+                    scheme_category = scheme_values[1].split("-")[0].strip()
+                    scheme_subcategory = scheme_values[1].split("-")[1].strip()[:-1]
+                #
+                # else:
+                #     scheme_category = scheme_values[1].strip()[:-1]
             line = line.rstrip("\n")
             if line.count(";") > 2:
-
                 values = line.split(";")
-                date = datetime.strptime(values[5], '%d-%b-%Y').date()
-                try:
-                    float(values[4].strip())
-                    if len(values[1].strip()) == 12 and len(values[2].strip()) == 12:
-                        update_to_db(
-                            get_row(int(values[0].strip()), values[1].strip(), values[2].strip(),
-                                    float(values[4].strip()), date,
-                                    values[3].rstrip(), open_ended, scheme_category.rstrip()))
-                    elif len(values[1].strip()) == 12:
-                        update_to_db(
-                            get_row(int(values[0].strip()), values[1].strip(), None, float(values[4].strip()), date,
-                                    values[3].rstrip(), open_ended, scheme_category.strip()))
-                    elif len(values[2].strip()) == 12:
-                        update_to_db(
-                            get_row(int(values[0].strip()), None, values[2].strip(), float(values[4].strip()), date,
-                                    values[3].rstrip(), open_ended, scheme_category.strip()))
-                    elif len(values[1].strip()) != 12 and len(values[2].strip()) != 12:
-                        update_to_db(
-                            get_row(int(values[0].strip()), None, None, float(values[4].strip()), date,
-                                    values[3].rstrip(), open_ended, scheme_category.strip()))
-                except ValueError:
-                    pass
+                # date = datetime.strptime(values[5], '%d-%b-%Y').date()
+                # try:
+                # print(values[2])
+                if len(values[1].strip()) > 2 > len(values[2].strip()):
+                    if "equity" in scheme_category.lower() or "hybrid" in scheme_category.lower():
+                        if all(keyword not in values[3].lower() for keyword in
+                               ["direct", "bonus", "retail", "institutional", "idcw", "cum capital", "payout","interval"]):
+                            # scheme_name = values[3].split("-")[0].strip().upper()
+                            scheme_name = values[3].strip().upper()
+                            new_row = {'amfi_scheme_code': values[0].strip(), 'scheme_name': scheme_name,
+                                       'isin_growth':values[1].strip(), 'scheme_category':scheme_category, 'scheme_subcategory':scheme_subcategory}
+                            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+    df.to_excel("test.xlsx")
+    print(df.iloc[0])
+        #     float(values[4].strip())
+        #     if len(values[1].strip()) == 12 and len(values[2].strip()) == 12:
+        #         update_to_db(
+        #             get_row(int(values[0].strip()), values[1].strip(), values[2].strip(),
+        #                     float(values[4].strip()), date,
+        #                     values[3].rstrip(), open_ended, scheme_category.rstrip()))
+        #     elif len(values[1].strip()) == 12:
+        #         update_to_db(
+        #             get_row(int(values[0].strip()), values[1].strip(), None, float(values[4].strip()), date,
+        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+        #     elif len(values[2].strip()) == 12:
+        #         update_to_db(
+        #             get_row(int(values[0].strip()), None, values[2].strip(), float(values[4].strip()), date,
+        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+        #     elif len(values[1].strip()) != 12 and len(values[2].strip()) != 12:
+        #         update_to_db(
+        #             get_row(int(values[0].strip()), None, None, float(values[4].strip()), date,
+        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+        # except ValueError:
+        #     pass
