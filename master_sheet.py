@@ -1,3 +1,4 @@
+import re
 from collections import OrderedDict
 from urllib import request
 
@@ -27,6 +28,13 @@ def download_nav_file(url):
 def update_to_db(row):
     # print(row)
     pass
+
+
+def clean_sheet_name(name):
+    # Remove or replace invalid characters
+    name = re.sub(r'[\\/*?:\[\]]', '_', name)
+    # Truncate to 31 characters (Excel limit)
+    return name[:31]
 
 
 def get_row(code, isin1, isin2, nav, nav_date, scheme_name, open_ended, scheme_category):
@@ -68,31 +76,39 @@ if __name__ == '__main__':
                 if len(values[1].strip()) > 2 > len(values[2].strip()):
                     if "equity" in scheme_category.lower() or "hybrid" in scheme_category.lower():
                         if all(keyword not in values[3].lower() for keyword in
-                               ["direct", "bonus", "retail", "institutional", "idcw", "cum capital", "payout","interval"]):
+                               ["direct", "bonus", "retail", "institutional", "idcw", "cum capital", "payout",
+                                "interval"]):
                             # scheme_name = values[3].split("-")[0].strip().upper()
                             scheme_name = values[3].strip().upper()
                             new_row = {'amfi_scheme_code': values[0].strip(), 'scheme_name': scheme_name,
-                                       'isin_growth':values[1].strip(), 'scheme_category':scheme_category, 'scheme_subcategory':scheme_subcategory}
+                                       'isin_growth': values[1].strip(), 'scheme_category': scheme_category.upper(),
+                                       'scheme_subcategory': scheme_subcategory.upper()}
                             df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-    df.to_excel("test.xlsx")
+    df.sort_values(by='scheme_name', ascending=True)
+    with pd.ExcelWriter('test.xlsx') as writer:
+        for subcategory, group in df.groupby('scheme_subcategory'):
+            print(subcategory)
+            sheet_name = clean_sheet_name(str(subcategory))
+            group.to_excel(writer, sheet_name=sheet_name, index=False)
+    # df.to_excel("test.xlsx")
     print(df.iloc[0])
-        #     float(values[4].strip())
-        #     if len(values[1].strip()) == 12 and len(values[2].strip()) == 12:
-        #         update_to_db(
-        #             get_row(int(values[0].strip()), values[1].strip(), values[2].strip(),
-        #                     float(values[4].strip()), date,
-        #                     values[3].rstrip(), open_ended, scheme_category.rstrip()))
-        #     elif len(values[1].strip()) == 12:
-        #         update_to_db(
-        #             get_row(int(values[0].strip()), values[1].strip(), None, float(values[4].strip()), date,
-        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
-        #     elif len(values[2].strip()) == 12:
-        #         update_to_db(
-        #             get_row(int(values[0].strip()), None, values[2].strip(), float(values[4].strip()), date,
-        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
-        #     elif len(values[1].strip()) != 12 and len(values[2].strip()) != 12:
-        #         update_to_db(
-        #             get_row(int(values[0].strip()), None, None, float(values[4].strip()), date,
-        #                     values[3].rstrip(), open_ended, scheme_category.strip()))
-        # except ValueError:
-        #     pass
+    #     float(values[4].strip())
+    #     if len(values[1].strip()) == 12 and len(values[2].strip()) == 12:
+    #         update_to_db(
+    #             get_row(int(values[0].strip()), values[1].strip(), values[2].strip(),
+    #                     float(values[4].strip()), date,
+    #                     values[3].rstrip(), open_ended, scheme_category.rstrip()))
+    #     elif len(values[1].strip()) == 12:
+    #         update_to_db(
+    #             get_row(int(values[0].strip()), values[1].strip(), None, float(values[4].strip()), date,
+    #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+    #     elif len(values[2].strip()) == 12:
+    #         update_to_db(
+    #             get_row(int(values[0].strip()), None, values[2].strip(), float(values[4].strip()), date,
+    #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+    #     elif len(values[1].strip()) != 12 and len(values[2].strip()) != 12:
+    #         update_to_db(
+    #             get_row(int(values[0].strip()), None, None, float(values[4].strip()), date,
+    #                     values[3].rstrip(), open_ended, scheme_category.strip()))
+    # except ValueError:
+    #     pass
