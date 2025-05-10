@@ -77,7 +77,7 @@ if __name__ == '__main__':
                     if "equity" in scheme_category.lower() or "hybrid" in scheme_category.lower():
                         if all(keyword not in values[3].lower() for keyword in
                                ["direct", "bonus", "retail", "institutional", "idcw", "cum capital", "payout",
-                                "interval"]):
+                                "interval","segregated"]):
                             # scheme_name = values[3].split("-")[0].strip().upper()
                             scheme_name = values[3].strip().upper()
                             new_row = {'amfi_scheme_code': values[0].strip(), 'scheme_name': scheme_name,
