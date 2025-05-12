@@ -40,13 +40,18 @@ for sheet_name in sheet_names:
                     nav_df.at[date, scheme_code] = nav
                 else:
                     # Create a new row with NaNs and set the specific scheme's NAV
-                    nav_df.loc[date] = pd.Series({scheme_code: nav})
+                    if date.weekday() < 5:
+                        nav_df.loc[date] = pd.Series({scheme_code: nav})
 
 
         else:
             print(f"Failed to fetch data for scheme {scheme_code}")
         # break
     nav_df.sort_index(inplace=True)
+    for col in nav_df.columns:
+        first_valid_idx = nav_df[col].first_valid_index()
+        if first_valid_idx is not None:
+            nav_df.loc[first_valid_idx:, col] = nav_df.loc[first_valid_idx:, col].ffill()
     nav_df.to_excel("test1.xlsx")
     break
     # print(nav_df)
