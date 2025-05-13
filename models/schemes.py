@@ -1,19 +1,22 @@
 from sqlalchemy import Column, String, Date, Numeric, ForeignKey, Index
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from db.base import Base
+
+
 class MFScheme(Base):
     __tablename__ = 'mf_schemes'
 
     isin = Column(String, primary_key=True)
-    amfi_scheme_code = Column(String, nullable=False)
+    amfi_code = Column(String, nullable=False)
     scheme_name = Column(String, nullable=False)
-    sebi_scheme_code = Column(String, nullable=False)
+    sebi_scheme_code = Column(String, nullable=True)
     plan = Column(String, nullable=False)
     option = Column(String, nullable=False)
-    category = Column(String, nullable=False)
-    sub_category = Column(String, nullable=False)
+    idcw_option = Column(String, nullable=True)
+    type = Column(String, nullable=True)
+    asset_class = Column(String, nullable=True)
+    sub_category = Column(String, nullable=True)
     benchmark_code = Column(String, ForeignKey('mf_benchmarks.code'), nullable=True)
 
     benchmark = relationship("MFBenchmark", back_populates="schemes")
@@ -21,6 +24,7 @@ class MFScheme(Base):
 
     def __repr__(self):
         return f"<MFScheme(isin={self.isin}, scheme_name={self.scheme_name})>"
+
 
 class MFSchemeNAV(Base):
     __tablename__ = 'mf_scheme_navs'

@@ -1,13 +1,14 @@
 from sqlalchemy import Column, String, Date, Numeric, ForeignKey, Index
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+from db.base import Base
+
+
 class MFBenchmark(Base):
     __tablename__ = 'mf_benchmarks'
 
     code = Column(String, primary_key=True)  # e.g., "NIFTY_50"
-    name = Column(String, nullable=False)    # e.g., "Nifty 50 TRI"
+    name = Column(String, nullable=False)  # e.g., "Nifty 50 TRI"
     index_provider = Column(String, nullable=True)  # e.g., "NSE"
 
     values = relationship("MFBenchmarkValue", back_populates="benchmark", cascade="all, delete-orphan")
