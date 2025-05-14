@@ -3,3 +3,5 @@ openpyxl==3.1.5
 requests~=2.32.3
 SQLAlchemy~=2.0.40
 numpy~=2.2.5
+nsepython~=2.94
+beautifulsoup4~=4.13.4
