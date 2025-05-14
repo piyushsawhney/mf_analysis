@@ -1,6 +1,8 @@
 import requests
 
+from db.db_functions import perform_upsert_do_nothing
 from helpers.urls import AMFI_SCHEMES
+from models import MFScheme
 
 
 def download_amfi_schemes(download_file_path):
@@ -39,25 +41,35 @@ def get_scheme_plans(scheme_name):
         scheme_plan = "RETAIL"
     elif "institutional" in scheme_name.lower():
         scheme_plan = "INSTITUTIONAL"
+    elif "bonus" in scheme_name.lower():
+        scheme_plan = "BONUS"
+    elif "wealth" in scheme_name.lower():
+        scheme_plan = "WEALTH"
     else:
         scheme_plan = "REGULAR"
     return scheme_plan
+
+
+def process_growth_schmes(amfi_code, isin1, scheme_name):
+    scheme1 = {
+        "isin": isin1.strip(),
+        "amfi_code": amfi_code.strip(),
+        "scheme_name": scheme_name.strip().upper(),
+        "plan": get_scheme_plans(scheme_name),
+        "option": "GROWTH",
+    }
+    return scheme1
 
 
 def process_scheme_from_isin(file_line):
     scheme_values = file_line.split(";")
     amfi_code, isin1, isin2, scheme_name = scheme_values[0], scheme_values[1], scheme_values[2], scheme_values[3]
     # TODO Remove segregated details
-    # TODO: Growth option pending
     # print(amfi_code, isin1, isin2, scheme_name)
     if len(isin2) > 3:
         return process_idcw_scheme(amfi_code, isin1, isin2, scheme_name)
     else:
-        return None, None
-    # else:
-    #     scheme_option = "GROWTH"
-    # if "bonus" in scheme_name.lower():
-    #     scheme_option = "BONUS"
+        return process_growth_schmes(amfi_code, isin1, scheme_name), None
 
 
 def parse_scheme_line(line, scheme_type, scheme_asset_class, scheme_subcategory):
@@ -78,7 +90,6 @@ def update_amfi_schemes_to_db(nav_file_path):
         nav_file.readline()
         scheme_type, scheme_asset_class, scheme_subcategory = "", "", ""
         for line in nav_file:
-            # result = None
             stripped = line.strip()
             line = line.rstrip("\n")
             if stripped:
@@ -92,10 +103,10 @@ def update_amfi_schemes_to_db(nav_file_path):
                         scheme1["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
                         scheme1["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
                         print(scheme1)
-                    #     perform_upsert_do_nothing(MFScheme, scheme1, ["isin"])
+                        perform_upsert_do_nothing(MFScheme, scheme1, ["isin"])
                     if scheme2 is not None:
                         scheme2["type"] = scheme_type if scheme_type != "" else None
                         scheme2["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
                         scheme2["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
                         print(scheme2)
-                    #     perform_upsert_do_nothing(MFScheme, scheme2, ["isin"])
+                        perform_upsert_do_nothing(MFScheme, scheme2, ["isin"])
