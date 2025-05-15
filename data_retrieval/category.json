@@ -1,0 +1,51 @@
+{
+  "1": {
+    "name": "Equity",
+    "subcategories": {
+      "1": "Large Cap",
+      "2": "Large & Mid Cap",
+      "3": "Flexi Cap",
+      "4": "Multi Cap",
+      "5": "Mid Cap",
+      "6": "Small Fund",
+      "7": "Value",
+      "8": "ELSS",
+      "9": "Value",
+      "10": "Contra",
+      "11": "Dividend Yield",
+      "12": "Focused Yield",
+      "13": "Sectoral/Thematic"
+    }
+  },
+  "2": {
+    "name": "Debt",
+    "subcategories": {
+    }
+  },
+  "3": {
+    "name": "Hybrid",
+    "subcategories": {
+      "1": "Aggressive Hybrid",
+      "2": "Conservative Hybrid",
+      "3": "Equity Savings",
+      "4": "Arbitrage",
+      "5": "Multi Asset",
+      "6": "Balanced Advantage",
+      "7": "Balanced Hybrid"
+    }
+  },
+  "4": {
+    "name": "Solution Oriented",
+    "subcategories": {
+      "1": "Children's",
+      "2": "Retirement"
+    }
+  },
+  "5": {
+    "name": "Others",
+    "subcategories": {
+      "1": "Index Funds",
+      "2": "Fund of Funds"
+    }
+  }
+}
