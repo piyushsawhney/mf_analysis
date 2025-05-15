@@ -1,12 +1,12 @@
 import requests
 
 from db.db_functions import perform_upsert_do_nothing
-from helpers.urls import AMFI_SCHEMES
+from helpers.urls import AMFI_DAILY_NAV
 from models import MFScheme
 
 
 def download_amfi_schemes(download_file_path):
-    response = requests.get(AMFI_SCHEMES)
+    response = requests.get(AMFI_DAILY_NAV)
     if response.status_code == 200:
         with open(download_file_path, 'w', encoding='latin1') as f:
             f.write(response.text)
