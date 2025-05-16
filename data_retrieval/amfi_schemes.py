@@ -1,6 +1,6 @@
 import requests
 
-from db.db_functions import perform_upsert_do_nothing
+from db.db_functions import perform_upsert_update_on_conflict
 from helpers.urls import AMFI_DAILY_NAV
 from models import MFScheme
 
@@ -17,21 +17,14 @@ def download_amfi_schemes(download_file_path):
 
 def process_idcw_scheme(amfi_code, isin1, isin2, scheme_name):
     scheme1 = {
-        "isin": isin1.strip(),
+        "isin1": isin1.strip() if len(isin1.strip()) > 3 else None,
+        "isin2": isin2.strip() if len(isin2.strip()) > 3 else None,
         "amfi_code": amfi_code.strip(),
         "scheme_name": scheme_name.strip().upper(),
         "plan": get_scheme_plans(scheme_name),
-        "option": "IDCW",
-        "idcw_option": "PAYOUT"}
-    scheme2 = {
-        "isin": isin2.strip(),
-        "amfi_code": amfi_code.strip(),
-        "scheme_name": scheme_name.strip().upper(),
-        "plan": get_scheme_plans(scheme_name),
-        "option": "IDCW",
-        "idcw_option": "REINVESTMENT"}
+        "option": "IDCW"}
 
-    return scheme1, scheme2
+    return scheme1
 
 
 def get_scheme_plans(scheme_name):
@@ -52,7 +45,7 @@ def get_scheme_plans(scheme_name):
 
 def process_growth_schmes(amfi_code, isin1, scheme_name):
     scheme1 = {
-        "isin": isin1.strip(),
+        "isin1": isin1.strip() if len(isin1.strip()) > 3 else None,
         "amfi_code": amfi_code.strip(),
         "scheme_name": scheme_name.strip().upper(),
         "plan": get_scheme_plans(scheme_name),
@@ -69,7 +62,7 @@ def process_scheme_from_isin(file_line):
     if len(isin2) > 3:
         return process_idcw_scheme(amfi_code, isin1, isin2, scheme_name)
     else:
-        return process_growth_schmes(amfi_code, isin1, scheme_name), None
+        return process_growth_schmes(amfi_code, isin1, scheme_name)
 
 
 def parse_scheme_line(line, scheme_type, scheme_asset_class, scheme_subcategory):
@@ -97,16 +90,10 @@ def update_amfi_schemes_to_db(nav_file_path):
                                                                                         scheme_asset_class,
                                                                                         scheme_subcategory)
                 if ';' in stripped:
-                    scheme1, scheme2 = process_scheme_from_isin(line)
+                    scheme1 = process_scheme_from_isin(line)
                     if scheme1 is not None:
                         scheme1["type"] = scheme_type if scheme_type != "" else None
                         scheme1["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
                         scheme1["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
                         print(scheme1)
-                        perform_upsert_do_nothing(MFScheme, scheme1, ["isin"])
-                    if scheme2 is not None:
-                        scheme2["type"] = scheme_type if scheme_type != "" else None
-                        scheme2["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
-                        scheme2["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
-                        print(scheme2)
-                        perform_upsert_do_nothing(MFScheme, scheme2, ["isin"])
+                        perform_upsert_update_on_conflict(MFScheme, [scheme1], ["amfi_code"])

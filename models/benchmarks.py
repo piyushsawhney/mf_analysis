@@ -7,15 +7,12 @@ from db.base import Base
 class MFBenchmark(Base):
     __tablename__ = 'mf_benchmarks'
 
-    code = Column(String, primary_key=True)  # e.g., "NIFTY_50"
-    name = Column(String, nullable=False)  # e.g., "Nifty 50 TRI"
-    index_provider = Column(String, nullable=True)  # e.g., "NSE"
-
+    code = Column(String, primary_key=True)  # e.g., "NIFTY 50 TRI"
     values = relationship("MFBenchmarkValue", back_populates="benchmark", cascade="all, delete-orphan")
     schemes = relationship("MFScheme", back_populates="benchmark")
 
     def __repr__(self):
-        return f"<MFBenchmark(code={self.code}, name={self.name})>"
+        return f"<MFBenchmark(code={self.code})>"
 
 
 class MFBenchmarkValue(Base):
