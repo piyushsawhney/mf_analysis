@@ -1,9 +1,6 @@
 from datetime import date
 
 from data_retrieval.amfi_historical import get_historical_nav
-from data_retrieval.amfi_schemes import update_amfi_schemes_to_db, download_amfi_schemes
-from data_retrieval.nse_benchmarks import get_nse_benchmarks
-from data_retrieval.nse_benchmarks_tri import download_historical_tri
 from db import init_db
 from db.engine import SessionLocal
 

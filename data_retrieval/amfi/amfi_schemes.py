@@ -95,5 +95,4 @@ def update_amfi_schemes_to_db(nav_file_path):
                         scheme1["type"] = scheme_type if scheme_type != "" else None
                         scheme1["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
                         scheme1["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
-                        print(scheme1)
                         perform_upsert_update_on_conflict(MFScheme, [scheme1], ["amfi_code"])
