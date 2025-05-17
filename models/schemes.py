@@ -17,6 +17,9 @@ class MFScheme(Base):
     sebi_scheme_code = Column(String, nullable=True)
     isin1 = Column(String, nullable=True)
     isin2 = Column(String, nullable=True)
+    launch_date = Column(Date, nullable=True)
+    metrics = relationship("SchemeMetric", back_populates="scheme")
+    drawdowns = relationship("Drawdown", back_populates="scheme")
     benchmark_code = Column(String, ForeignKey('mf_benchmarks.code'), nullable=True)
     benchmark = relationship("MFBenchmark", back_populates="schemes")
     navs = relationship("MFSchemeNAV", back_populates="scheme", cascade="all, delete-orphan")
@@ -39,4 +42,4 @@ class MFSchemeNAV(Base):
     )
 
     def __repr__(self):
-        return f"<MFSchemeNAV(isin={self.amfi_code}, date={self.date}, nav={self.nav})>"
+        return f"<MFSchemeNAV(amfi_code={self.amfi_code}, date={self.date}, nav={self.nav})>"

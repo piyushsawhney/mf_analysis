@@ -54,15 +54,24 @@ def process_growth_schmes(amfi_code, isin1, scheme_name):
     return scheme1
 
 
+def is_scheme_correct(scheme_name):
+    if any(k in scheme_name.lower() for k in ["income distribution", "idcw", "index", "payout"]):
+        return False
+    return True
+
+
 def process_scheme_from_isin(file_line):
     scheme_values = file_line.split(";")
     amfi_code, isin1, isin2, scheme_name = scheme_values[0], scheme_values[1], scheme_values[2], scheme_values[3]
     # TODO Remove segregated details
-    # print(amfi_code, isin1, isin2, scheme_name)
-    if len(isin2) > 3:
-        return process_idcw_scheme(amfi_code, isin1, isin2, scheme_name)
-    else:
-        return process_growth_schmes(amfi_code, isin1, scheme_name)
+    if get_scheme_plans(scheme_name) == "REGULAR" and is_scheme_correct(scheme_name):
+        if len(isin2) > 3:
+            # For now only processing regular plans
+            # return process_idcw_scheme(amfi_code, isin1, isin2, scheme_name)
+            return None
+        else:
+            return process_growth_schmes(amfi_code, isin1, scheme_name)
+    return None
 
 
 def parse_scheme_line(line, scheme_type, scheme_asset_class, scheme_subcategory):
@@ -89,10 +98,15 @@ def update_amfi_schemes_to_db(nav_file_path):
                 scheme_type, scheme_asset_class, scheme_subcategory = parse_scheme_line(line, scheme_type,
                                                                                         scheme_asset_class,
                                                                                         scheme_subcategory)
-                if ';' in stripped:
-                    scheme1 = process_scheme_from_isin(line)
-                    if scheme1 is not None:
-                        scheme1["type"] = scheme_type if scheme_type != "" else None
-                        scheme1["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
-                        scheme1["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
-                        perform_upsert_update_on_conflict(MFScheme, [scheme1], ["amfi_code"])
+                # Only Open ended equity, hybrid or solution oriented regular growth schemes
+                if "open" in scheme_type.lower():
+                    if any(k in scheme_asset_class.lower() for k in ["equity", "hybrid", "solution"]):
+                        if scheme_subcategory and all(
+                                k not in scheme_subcategory.lower() for k in ["arbitrage", "sectoral", "thematic"]):
+                            if ';' in stripped:
+                                scheme1 = process_scheme_from_isin(line)
+                                if scheme1 is not None:
+                                    scheme1["type"] = scheme_type if scheme_type != "" else None
+                                    scheme1["asset_class"] = scheme_asset_class if scheme_asset_class != "" else None
+                                    scheme1["sub_category"] = scheme_subcategory if scheme_subcategory != "" else None
+                                    perform_upsert_update_on_conflict(MFScheme, [scheme1], ["amfi_code"])
