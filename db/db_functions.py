@@ -46,3 +46,25 @@ def perform_insert(orm_with_data):
         session.commit()
     except IntegrityError:
         session.rollback()
+
+
+def perform_insert_on_one_cell(orm, key_column, key, target_column, value):
+    session.query(orm).filter_by(**{key_column: key}).update({target_column: value})
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()
+
+
+def perform_upsert_on_one_cell(orm, key_column, key, target_column, value):
+    instance = session.query(orm).filter_by(**{key_column: key}).first()
+    if instance:
+        setattr(instance, target_column, value)
+    else:
+        instance = orm(**{key_column: key, target_column: value})
+        session.add(instance)
+
+    try:
+        session.commit()
+    except IntegrityError:
+        session.rollback()

@@ -18,14 +18,16 @@ class MFScheme(Base):
     isin1 = Column(String, nullable=True)
     isin2 = Column(String, nullable=True)
     launch_date = Column(Date, nullable=True)
+    mstar_url = Column(String, nullable=True)
+    last_update_metric = Column(Date, nullable=True)
     metrics = relationship("SchemeMetric", back_populates="scheme")
-    drawdowns = relationship("Drawdown", back_populates="scheme")
+    drawdowns = relationship("SchemeDrawdown", back_populates="scheme")
     benchmark_code = Column(String, ForeignKey('mf_benchmarks.code'), nullable=True)
     benchmark = relationship("MFBenchmark", back_populates="schemes")
     navs = relationship("MFSchemeNAV", back_populates="scheme", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<MFScheme(amfi_code={self.amfi_code}, scheme_name={self.scheme_name})>"
+        return f"<MFScheme(amfi_code={self.amfi_code}, scheme_name={self.scheme_name}, mstar_url={self.mstar_url}, launch_date={self.launch_date})>"
 
 
 class MFSchemeNAV(Base):

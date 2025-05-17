@@ -1,5 +1,6 @@
 import requests
 
+from data_retrieval.amfi.skip_amfi_codes import skip_codes_list
 from db.db_functions import perform_upsert_update_on_conflict
 from helpers.urls import AMFI_DAILY_NAV
 from models import MFScheme
@@ -64,7 +65,8 @@ def process_scheme_from_isin(file_line):
     scheme_values = file_line.split(";")
     amfi_code, isin1, isin2, scheme_name = scheme_values[0], scheme_values[1], scheme_values[2], scheme_values[3]
     # TODO Remove segregated details
-    if get_scheme_plans(scheme_name) == "REGULAR" and is_scheme_correct(scheme_name):
+    if get_scheme_plans(scheme_name) == "REGULAR" and is_scheme_correct(
+            scheme_name) and amfi_code not in skip_codes_list:
         if len(isin2) > 3:
             # For now only processing regular plans
             # return process_idcw_scheme(amfi_code, isin1, isin2, scheme_name)
