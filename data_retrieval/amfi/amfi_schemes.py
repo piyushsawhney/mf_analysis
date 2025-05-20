@@ -56,7 +56,7 @@ def process_growth_schmes(amfi_code, isin1, scheme_name):
 
 
 def is_scheme_correct(scheme_name):
-    if any(k in scheme_name.lower() for k in ["income distribution", "idcw", "index", "payout"]):
+    if any(k in scheme_name.lower() for k in ["income distribution", "idcw", "index", "payout","dividend option"]):
         return False
     return True
 
