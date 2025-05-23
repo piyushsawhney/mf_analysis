@@ -6,3 +6,4 @@ numpy~=2.2.5
 nsepython~=2.94
 beautifulsoup4~=4.13.4
 selenium~=4.32.0
+python-dateutil~=2.9.0.post0
