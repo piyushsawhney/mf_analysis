@@ -1,0 +1,45 @@
+{
+  "1": {
+    "name": "Equity",
+    "subcategories": {
+      "1": "LARGE CAP FUND",
+      "2": "LARGE & MID CAP FUND",
+      "3": "FLEXI CAP FUND",
+      "4": "MULTI CAP FUND",
+      "5": "MID CAP FUND",
+      "6": "SMALL CAP FUND",
+      "7": "VALUE FUND",
+      "8": "ELSS",
+      "9": "CONTRA FUND",
+      "10": "DIVIDEND YIELD FUND",
+      "11": "FOCUSED FUND"}
+  },
+  "2": {
+    "name": "Debt",
+    "subcategories": {
+    }
+  },
+  "3": {
+    "name": "Hybrid",
+    "subcategories": {
+      "30": "AGGRESSIVE HYBRID FUND",
+      "31": "CONSERVATIVE HYBRID FUND",
+      "32": "EQUITY SAVINGS",
+      "34": "MULTI ASSET ALLOCATION",
+      "35": "DYNAMIC ASSET ALLOCATION OR BALANCED ADVANTAGE",
+      "40": "BALANCED HYBRID FUND"
+    }
+  },
+  "4": {
+    "name": "Solution Oriented",
+    "subcategories": {
+      "36": "CHILDREN’S FUND",
+      "37": "RETIREMENT FUND"
+    }
+  },
+  "5": {
+    "name": "Others",
+    "subcategories": {
+    }
+  }
+}
